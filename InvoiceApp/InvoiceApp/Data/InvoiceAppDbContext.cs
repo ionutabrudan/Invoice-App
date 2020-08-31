@@ -17,5 +17,7 @@ namespace InvoiceApp.Data
         public DbSet<InvoiceApp.Models.Customer> Customer { get; set; }
 
         public DbSet<InvoiceApp.Models.Product> Product { get; set; }
+
+        public DbSet<InvoiceApp.Models.Invoice> Invoice { get; set; }
     }
 }
