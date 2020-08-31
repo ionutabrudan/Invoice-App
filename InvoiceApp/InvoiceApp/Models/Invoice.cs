@@ -32,5 +32,9 @@ namespace InvoiceApp.Models
         [ForeignKey("CustomerId")]
         public Customer Customer { get; set; }
 
+        public List<InvoiceItem> Items { get; set; } = new List<InvoiceItem>();
+
+
     }
+
 }
