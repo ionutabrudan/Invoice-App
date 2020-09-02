@@ -24,7 +24,8 @@ namespace InvoiceApp.Controllers
         // GET: Invoices
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Invoice.ToListAsync());
+            var invoiceList = await _context.Invoice.Include(i => i.Customer).ToListAsync();
+            return View(invoiceList);
         }
 
         // GET: Invoices/Details/5
