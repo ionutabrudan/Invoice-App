@@ -16,23 +16,41 @@ namespace InvoiceApp.Models
 
         [Required]
         [StringLength(20)]
+        [Display(Name = "Serial Number")]
         public string SerialNumber { get; set; }
 
         [Required]
         [StringLength(20)]
+        [Display(Name = "Invoice Number")]
         public string InvoiceNumber { get; set; }
 
         [Required]
+        [DataType (DataType.Date)]
+        [Display(Name = "Invoice Date")]
         public DateTime InvoiceDate { get; set; }
 
         [Required]
+        [DataType(DataType.Date)]
+        [Display(Name = "Due Date")]
         public DateTime DueDate { get; set; }
 
         [Required]
         [ForeignKey("CustomerId")]
-        public Customer Customer { get; set; }
+        [Display(Name = "Customer")]
+        public Customer Customer { get; set; } 
 
         public List<InvoiceItem> Items { get; set; } = new List<InvoiceItem>();
+
+        [NotMapped]
+        public List<Customer> AvailableCustomers { get; set; } = new List<Customer>();
+
+        [Required]
+        [NotMapped]
+        [Display(Name ="Customer Id")]
+        public int SelectedCustomerId { get; set; }
+
+        
+
 
 
     }

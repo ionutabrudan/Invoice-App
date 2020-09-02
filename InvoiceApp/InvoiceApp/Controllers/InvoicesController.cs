@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using InvoiceApp.Data;
 using InvoiceApp.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace InvoiceApp.Controllers
 {
     public class InvoicesController : Controller
     {
+        private const int DueDays = 30;
         private readonly InvoiceAppDbContext _context;
 
         public InvoicesController(InvoiceAppDbContext context)
@@ -44,9 +46,13 @@ namespace InvoiceApp.Controllers
         }
 
         // GET: Invoices/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var model = new Invoice();
+            model.AvailableCustomers = await _context.Customer.ToListAsync();
+            model.InvoiceDate = DateTime.Today;
+            model.DueDate = model.InvoiceDate.AddDays(DueDays);
+            return View(model);
         }
 
         // POST: Invoices/Create
@@ -54,10 +60,24 @@ namespace InvoiceApp.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,SerialNumber,InvoiceNumber,InvoiceDate,DueDate")] Invoice invoice)
+        public async Task<IActionResult> Create([Bind("SerialNumber,InvoiceNumber,InvoiceDate,SelectedCustomerId")] Invoice invoice)
         {
+            ModelState.Clear();
+            var customer = await _context.Customer.FirstOrDefaultAsync(c => c.Id == invoice.SelectedCustomerId);
+            if (customer is null)
+            {
+                ModelState.AddModelError("SelectedCustomerId", "Unable to find customer");
+                return View(invoice);
+            }
+
+            invoice.Customer = customer;
+
             if (ModelState.IsValid)
             {
+                invoice.DueDate = invoice.InvoiceDate.AddDays(DueDays);
+                
+
+                invoice.Customer = customer;
                 _context.Add(invoice);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

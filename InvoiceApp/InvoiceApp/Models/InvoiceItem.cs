@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -28,6 +30,6 @@ namespace InvoiceApp.Models
         [Required]
         [ForeignKey("InvoiceId")]
         public Invoice Invoice { get; set; }
-
+           
     }
 }
