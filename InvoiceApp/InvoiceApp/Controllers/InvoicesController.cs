@@ -24,8 +24,8 @@ namespace InvoiceApp.Controllers
         // GET: Invoices
         public async Task<IActionResult> Index()
         {
-            var invoiceList = await _context.Invoice.Include(i => i.Customer).ToListAsync();
-            return View(invoiceList);
+           var invoiceList = await _context.Invoice.Include(i => i.Customer).ToListAsync();
+           return View(invoiceList);
         }
 
         // GET: Invoices/Details/5
@@ -37,7 +37,9 @@ namespace InvoiceApp.Controllers
             }
 
             var invoice = await _context.Invoice
+                .Include(i => i.Customer)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (invoice == null)
             {
                 return NotFound();
@@ -77,8 +79,6 @@ namespace InvoiceApp.Controllers
             {
                 invoice.DueDate = invoice.InvoiceDate.AddDays(DueDays);
                 
-
-                invoice.Customer = customer;
                 _context.Add(invoice);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -94,11 +94,18 @@ namespace InvoiceApp.Controllers
                 return NotFound();
             }
 
-            var invoice = await _context.Invoice.FindAsync(id);
+            var invoice = await _context.Invoice
+                .Include(i => i.Customer)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
             if (invoice == null)
             {
                 return NotFound();
             }
+
+            invoice.AvailableCustomers = await _context.Customer.ToListAsync();
+            invoice.SelectedCustomerId = invoice.Customer.Id;
+
             return View(invoice);
         }
 
@@ -107,17 +114,29 @@ namespace InvoiceApp.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SerialNumber,InvoiceNumber,InvoiceDate,DueDate")] Invoice invoice)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SerialNumber,InvoiceNumber,InvoiceDate,SelectedCustomerId")] Invoice invoice)
         {
             if (id != invoice.Id)
             {
                 return NotFound();
             }
 
+            ModelState.Clear();
+            var customer = await _context.Customer.FirstOrDefaultAsync(c => c.Id == invoice.SelectedCustomerId);
+            if (customer is null)
+            {
+                ModelState.AddModelError("SelectedCustomerId", "Unable to find customer");
+                return View(invoice);
+            }
+
+            invoice.Customer = customer;
+
             if (ModelState.IsValid)
             {
                 try
                 {
+                    invoice.DueDate = invoice.InvoiceDate.AddDays(DueDays);
+
                     _context.Update(invoice);
                     await _context.SaveChangesAsync();
                 }

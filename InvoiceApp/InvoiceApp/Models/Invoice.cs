@@ -48,11 +48,6 @@ namespace InvoiceApp.Models
         [NotMapped]
         [Display(Name ="Customer Id")]
         public int SelectedCustomerId { get; set; }
-
-        
-
-
-
     }
 
 }
