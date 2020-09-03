@@ -19,10 +19,13 @@ namespace InvoiceApp.Models
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
 
+        [Display(Name = "Quantity")]
         [Required]
+        [Range(typeof(decimal), "0.01", "9999999999999999.99")]
         [Column(TypeName = "decimal(18,2)")]
         public decimal Quantity { get; set; }
 
+        [Display(Name = "Unit Price")]
         [Required]
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
@@ -31,5 +34,30 @@ namespace InvoiceApp.Models
         [ForeignKey("InvoiceId")]
         public Invoice Invoice { get; set; }
            
+        [NotMapped]
+        public decimal LineTotal
+        { 
+            get
+            {
+                return this.Quantity * this.Price;
+            } 
+        }
+
+        [NotMapped]
+        public string LineTotalFormatted
+        {
+            get
+            {
+                return $"{LineTotal:N2}";
+            }
+        }
+
+        [NotMapped]
+        public List<Product> AvailableProducts { get; set; } = new List<Product>();
+
+        [Required]
+        [NotMapped]
+        [Display(Name = "Product Id")]
+        public int SelectedProductId { get; set; }
     }
 }

@@ -38,6 +38,7 @@ namespace InvoiceApp.Controllers
 
             var invoice = await _context.Invoice
                 .Include(i => i.Customer)
+                .Include(i => i.Items).ThenInclude(itm => itm.Product)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (invoice == null)

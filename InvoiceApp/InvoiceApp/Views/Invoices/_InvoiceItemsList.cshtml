@@ -1,0 +1,57 @@
+﻿@model InvoiceApp.Models.Invoice
+
+<div>
+    <h5 class="float-left">Invoice Items</h5>
+    <a asp-controller="InvoiceItems" asp-action="Create" asp-route-id="@Model.Id" class="float-right">Create New</a>
+    <div class="clearfix"></div>
+</div>
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Product.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LineTotalFormatted)
+                </td>
+                <td>
+                    <a asp-controller="InvoiceItems" asp-action="Delete" asp-route-id="@item.Id" class="delete-btn" data-product="@item.Product.Name">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3">
+                TOTAL
+            </td>
+            <td>
+                @{
+                    var invoiceTotal = Model.Items.Sum(invoiceItem => invoiceItem.LineTotal);
+                    @Html.Raw($"{invoiceTotal:N2}");
+                }
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+    </tfoot>
+</table>
